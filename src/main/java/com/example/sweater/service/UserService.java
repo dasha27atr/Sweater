@@ -34,10 +34,6 @@ public class UserService implements UserDetailsService {
         return user;
     }
 
-    public void deleteByRole(Set<Role> roles){
-        userRepository.deleteUserByRoles(roles);
-    }
-
     public void delete(User user){
         userRepository.delete(user);
     }
@@ -55,7 +51,7 @@ public class UserService implements UserDetailsService {
 
         userRepository.save(user);
 
-//        sendMessage(user);
+        sendMessage(user);
         return true;
     }
 
