@@ -31,14 +31,18 @@ import java.util.UUID;
 
 @Controller
 public class MessageController {
-    @Autowired
-    private MessageRepository messageRepository;
+    private final MessageRepository messageRepository;
 
-    @Autowired
-    private MessageService messageService;
+    private final MessageService messageService;
 
     @Value("${upload.path}")
     private String uploadPath;
+
+    @Autowired
+    public MessageController(MessageRepository messageRepository, MessageService messageService) {
+        this.messageRepository = messageRepository;
+        this.messageService = messageService;
+    }
 
     @GetMapping("/")
     public String greeting(Map<String, Object> model) {
