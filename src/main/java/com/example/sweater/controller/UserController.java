@@ -37,7 +37,9 @@ public class UserController {
     @GetMapping("{user}/delete")
     @PreAuthorize("hasAuthority('ADMIN')")
     public String delete(@Valid @PathVariable("user") User user){
-        userService.delete(user);
+        if(!user.getRoles().contains(Role.ADMIN)){
+            userService.delete(user);
+        }
         return "redirect:/user";
     }
 
