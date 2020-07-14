@@ -22,6 +22,11 @@
                 <td>
                     <a href="/user/${user.id}">edit</a>
                 </td>
+                <td>
+                    <a style="margin-left: 10px" href="/user/${user.id}/delete">
+                        <i class="fa fa-trash" aria-hidden="true"></i>
+                    </a>
+                </td>
             </tr>
         </#list>
         </tbody>

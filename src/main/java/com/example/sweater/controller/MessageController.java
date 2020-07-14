@@ -66,8 +66,10 @@ public class MessageController {
             @AuthenticationPrincipal User user,
             @Valid Message message,
             BindingResult bindingResult,
-            Model model
+            Model model,
+            @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
     ) throws IOException {
+        Page<MessageDto> page = messageService.messageListForUser(pageable, user, user);
         message.setAuthor(user);
         if (bindingResult.hasErrors()) {
             Map<String, String> errorsMap = ControllerUtils.getErrors(bindingResult);
@@ -80,6 +82,8 @@ public class MessageController {
         }
         Iterable<Message> messages = messageRepository.findAll();
         model.addAttribute("messages", messages);
+        model.addAttribute("url", "/user-messages/" + user.getId());
+        model.addAttribute("page", page);
         return "main";
     }
 
@@ -126,7 +130,7 @@ public class MessageController {
             @RequestParam("text") String text,
             @RequestParam("tag") String tag,
             @RequestParam("file") MultipartFile file
-    ) throws IOException {
+            ) throws IOException {
         if (message.getAuthor().equals(currentUser)) {
             if (!StringUtils.isEmpty(text)) {
                 message.setText(text);
@@ -139,6 +143,13 @@ public class MessageController {
             saveFile(file, message);
             messageRepository.save(message);
         }
+        return "redirect:/user-messages/" + user;
+    }
+
+    @GetMapping("/user-messages/{user}/{message}")
+    public String deleteMessage(@PathVariable Long user,
+                                @PathVariable("message") Long id){
+        messageService.deleteById(id);
         return "redirect:/user-messages/" + user;
     }
 

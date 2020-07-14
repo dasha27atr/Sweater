@@ -4,12 +4,13 @@
     <h5>${username}</h5>
     ${message!}
     <form method="post">
-        <#--        <div class="form-group row">-->
-        <#--            <label class="col-sm-2 col-form-label">User Name: </label>-->
-        <#--            <div class="col-sm-6">-->
-        <#--                <input type="text" name="username" class="form-control" placeholder="User name"/>-->
-        <#--            </div>-->
-        <#--        </div>-->
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label">User Name: </label>
+            <div class="col-sm-6">
+                <input type="text" name="username" class="form-control"
+                       placeholder="Username"/>
+            </div>
+        </div>
         <div class="form-group row">
             <label class="col-sm-2 col-form-label">Password: </label>
             <div class="col-sm-6">

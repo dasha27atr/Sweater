@@ -4,6 +4,7 @@
     User editor
 
     <form action="/user" method="post">
+        <label>Chosen user: </label>
         <input type="text" name="username" value="${user.username}"/>
         <#list roles as role>
             <div>
@@ -16,3 +17,4 @@
         <button type="submit">Save</button>
     </form>
 </@c.page>
+

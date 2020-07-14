@@ -34,6 +34,14 @@ public class UserService implements UserDetailsService {
         return user;
     }
 
+    public void deleteByRole(Set<Role> roles){
+        userRepository.deleteUserByRoles(roles);
+    }
+
+    public void delete(User user){
+        userRepository.delete(user);
+    }
+
     public boolean addUser(User user) {
         User userFromDb = userRepository.findByUsername(user.getUsername());
 
@@ -47,11 +55,11 @@ public class UserService implements UserDetailsService {
 
         userRepository.save(user);
 
-        sendMessage(user);
+//        sendMessage(user);
         return true;
     }
 
-    private void sendMessage(User user) {
+    public boolean sendMessage(User user) {
         if (!StringUtils.isEmpty(user.getEmail())) {
             String message = String.format(
                     "Hello, %s! \n" +
@@ -62,7 +70,9 @@ public class UserService implements UserDetailsService {
 
             );
             mailSender.send(user.getEmail(), "Activation code", message);
+            return true;
         }
+        return false;
     }
 
     public boolean activateUser(String code) {
@@ -80,24 +90,24 @@ public class UserService implements UserDetailsService {
         return userRepository.findAll();
     }
 
-    public void saveUser(String username, Map<String, String> form, User user) {
-        user.setUsername(username);
+    public void saveUser(Map<String, String> form, User user) {
+        User editedUser = userRepository.findByUsername(user.getUsername());
+        editedUser.getRoles().clear();
         Set<String> roles = Arrays.stream(Role.values())
                 .map(Role::name)
                 .collect(Collectors.toSet());
-        user.getRoles().clear();
         for (String key : form.keySet()) {
             if (roles.contains(key)) {
-                user.getRoles().add(Role.valueOf(key));
+                editedUser.getRoles().add(Role.valueOf(key));
             }
         }
-        userRepository.save(user);
+        userRepository.save(editedUser);
     }
 
-    public void updateProfile(User user, String password, String email) {
+    public boolean updateProfile(User user, String username, String password, String email) {
         String userEmail = user.getEmail();
-        boolean isEmailChanged = (email != null && !email.equals(userEmail)) ||
-                (userEmail != null && !userEmail.equals(email));
+        boolean isEmailChanged = ((email != null && !email.equals(userEmail)) ||
+                (userEmail != null && !userEmail.equals(email))) && (email != null);
         if (isEmailChanged) {
             user.setEmail(email);
 
@@ -105,10 +115,13 @@ public class UserService implements UserDetailsService {
                 user.setActivationCode(UUID.randomUUID().toString());
             }
         }
+        User newUsername = userRepository.findByUsername(username);
+        if (newUsername == null) {
+            if (!StringUtils.isEmpty(username)) {
+                user.setUsername(username);
+            }
+        } else return false;
 
-//        if (!StringUtils.isEmpty(username)) {
-//            user.setUsername(username);
-//        }
         if (!StringUtils.isEmpty(password)) {
             user.setPassword(password);
         }
@@ -118,17 +131,23 @@ public class UserService implements UserDetailsService {
         if (isEmailChanged) {
             sendMessage(user);
         }
+        return true;
     }
 
-    public void subscribe(User currentUser, User user) {
+    public boolean subscribe(User currentUser, User user) {
         user.getSubscribers().add(currentUser);
 
         userRepository.save(user);
+
+        return true;
     }
 
-    public void unsubscribe(User currentUser, User user) {
-        user.getSubscribers().remove(currentUser);
-
+    public boolean unsubscribe(User currentUser, User user) {
+        if (user.getSubscribers().contains(currentUser)) {
+            user.getSubscribers().remove(currentUser);
+        }
         userRepository.save(user);
+
+        return true;
     }
 }

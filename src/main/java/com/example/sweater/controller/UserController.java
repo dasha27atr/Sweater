@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Map;
 
 @Controller
@@ -33,13 +34,19 @@ public class UserController {
         return "userEdit";
     }
 
+    @GetMapping("{user}/delete")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String delete(@Valid @PathVariable("user") User user){
+        userService.delete(user);
+        return "redirect:/user";
+    }
+
     @PostMapping
     @PreAuthorize("hasAuthority('ADMIN')")
     public String userSave(
-            @RequestParam String username,
             @RequestParam Map<String, String> form,
             @RequestParam("userId") User user) {
-        userService.saveUser(username, form, user);
+        userService.saveUser(form, user);
         return "redirect:/user";
     }
 
@@ -54,24 +61,24 @@ public class UserController {
     @PostMapping("profile")
     public String updateProfile(
             @AuthenticationPrincipal User user,
+            @RequestParam String username,
             @RequestParam String password,
             @RequestParam String email
     ) {
-        userService.updateProfile(user, password, email);
-
+        userService.updateProfile(user, username, password, email);
         return "redirect:/user/profile";
     }
 
     @GetMapping("subscribe/{user}")
     public String subscribe(@AuthenticationPrincipal User currentUser,
-                            @PathVariable User user){
+                            @PathVariable User user) {
         userService.subscribe(currentUser, user);
         return "redirect:/user-messages/" + user.getId();
     }
 
     @GetMapping("unsubscribe/{user}")
     public String unsubscribe(@AuthenticationPrincipal User currentUser,
-                            @PathVariable User user){
+                              @PathVariable User user) {
         userService.unsubscribe(currentUser, user);
         return "redirect:/user-messages/" + user.getId();
     }
@@ -79,11 +86,11 @@ public class UserController {
     @GetMapping("{type}/{user}/list")
     public String userList(Model model,
                            @PathVariable User user,
-                           @PathVariable String type){
+                           @PathVariable String type) {
         model.addAttribute("userChannel", user);
         model.addAttribute("type", type);
 
-        if("subscriptions".equals(type)){
+        if ("subscriptions".equals(type)) {
             model.addAttribute("users", user.getSubscriptions());
         } else {
             model.addAttribute("users", user.getSubscribers());
