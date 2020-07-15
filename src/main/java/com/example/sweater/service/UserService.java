@@ -16,15 +16,15 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserService implements UserDetailsService {
-    private final UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     private final MailSender mailSender;
 
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserService(UserRepository userRepository, MailSender mailSender, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
+    public UserService(MailSender mailSender, PasswordEncoder passwordEncoder) {
         this.mailSender = mailSender;
         this.passwordEncoder = passwordEncoder;
     }
